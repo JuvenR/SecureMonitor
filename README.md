@@ -182,13 +182,21 @@ The daemon serves both the API and the static files from `web/` on the configure
 ### Main entry points
 
 - **Dashboard UI**
-
-  ```http
+ ```bash
   GET /dashboard.html
-  ```
+ ```
 - **Unified snapshot for the UI**
-```http
+```bash
   GET /api/dashboard 
  ```
+```bash
+{
+  "status": { ... },
+  "stats": { "ssh": 0, "ftp": 0, "apache": 0 },
+  "logs": [ ... ],
+  "alerts": [ ... ],
+  "blocked": [ "1.2.3.4", "5.6.7.8" ]
+}
+```
 
 
