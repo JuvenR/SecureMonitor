@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicio SSH - OpenSSH Server | SecureMonitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: #2c3e50;
+            color: white;
+            padding: 2rem 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #95a5a6;
+            padding: 0 2rem 1rem;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sidebar-link {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 0.75rem 2rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-link:hover {
+            background: #34495e;
+            border-left-color: #3498db;
+            color: white;
+        }
+
+        /* CONTENIDO */
+        .content {
+            flex: 1;
+            padding: 3rem 4rem;
+            max-width: 1000px;
+        }
+
+        /* HEADER */
+        .page-header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .page-kicker {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .page-lead {
+            font-size: 1.1rem;
+            color: #546e7a;
+            line-height: 1.7;
+        }
+
+        /* SECCIONES */
+        .section {
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
+        }
+
+        .section-header {
+            margin-bottom: 2rem;
+        }
+
+        .section-tag {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-subtitle {
+            color: #7f8c8d;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .section-body {
+            line-height: 1.7;
+        }
+
+        .section-body p {
+            margin-bottom: 1.25rem;
+            color: #444;
+        }
+
+        .section-body ul {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .section-body li {
+            margin-bottom: 0.75rem;
+            color: #444;
+        }
+
+        .text-muted {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            font-style: italic;
+            border-left: 3px solid #eee;
+            padding-left: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        /* CÓDIGO */
+        .code-label {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+            font-size: 0.85rem;
+            color: #666;
+            margin: 1.5rem 0 0.5rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: #f5f7fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 1.25rem;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #24292e;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* VIDEO SECTION */
+        .video-section {
+            margin: 3rem 0;
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eaeaea;
+        }
+
+        .video-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+
+        .video-description {
+            color: #7f8c8d;
+            margin-bottom: 1.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .video-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #ff0000;
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .video-link:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
+        }
+
+        .video-link i {
+            font-size: 1.2rem;
+        }
+
+        .video-container {
+            max-width: 800px;
+            margin: 0 auto;
+            margin-bottom: 1.5rem;
+        }
+
+        /* FOOTER */
+        .page-footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 2px solid #eaeaea;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .layout {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 1.5rem;
+            }
+            
+            .content {
+                padding: 2rem;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 1.5rem;
+            }
+            
+            .page-title {
+                font-size: 1.75rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .video-section {
+                padding: 1.5rem;
+            }
+            
+            .video-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <main class="layout">
+        <!-- SIDEBAR SSH -->
+        <aside class="sidebar">
+            <div class="sidebar-label">SSH · Índice</div>
+            <div class="sidebar-group">
+                <a href="#ssh-intro" class="sidebar-link">¿Qué es SSH?</a>
+                <a href="#ssh-pasos" class="sidebar-link">Pasos de instalación</a>
+                <a href="#ssh-estado" class="sidebar-link">Verificar estado</a>
+                <a href="#ssh-ip" class="sidebar-link">Obtener IP del servidor</a>
+                <a href="#ssh-conexion" class="sidebar-link">Conexión remota</a>
+                <a href="#ssh-experimento" class="sidebar-link">Experimento práctico</a>
+                <a href="#ssh-video" class="sidebar-link">Video demostrativo</a>
+                <a href="#ssh-conclusion" class="sidebar-link">Conclusión</a>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO -->
+        <section class="content">
+            <!-- HEADER PÁGINA -->
+            <header class="page-header" id="ssh-intro">
+                <div class="page-kicker">Reporte de Servicio SSH</div>
+                <h1 class="page-title">SSH en Linux - OpenSSH Server</h1>
+                <p class="page-lead">
+                    Documentación del proceso de instalación, configuración y uso del servicio SSH (Secure Shell) en una máquina con Ubuntu, incluyendo conexión remota desde Windows mediante CMD.
+                </p>
+                <div class="text-muted">
+                    Carlos Eduardo Mungarro Tequida · ID: 247590 · Redes Linux
+                </div>
+            </header>
+
+            <!-- SECCIÓN: ¿Qué es SSH? -->
+            <section class="section" aria-labelledby="ssh-intro-title">
+                <header class="section-header">
+                    <span class="section-tag">Concepto</span>
+                    <h2 class="section-title" id="ssh-intro-title">¿Qué es el servicio SSH?</h2>
+                    <p class="section-subtitle">
+                        SSH (Secure Shell) permite conectarse y administrar equipos de manera remota a través de una conexión segura y cifrada.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <p>
+                        En Linux, este servicio se implementa mediante el paquete OpenSSH Server, el cual crea un canal seguro entre un cliente (quien se conecta) y un servidor (el equipo remoto).
+                    </p>
+
+                    <p>
+                        Con SSH puedes:
+                    </p>
+                    <ul>
+                        <li>Acceder a una terminal remota y ejecutar comandos.</li>
+                        <li>Transferir archivos con SCP o SFTP.</li>
+                        <li>Crear túneles seguros para otros servicios.</li>
+                        <li>Administrar servidores de manera remota sin interfaz gráfica.</li>
+                    </ul>
+
+                    <p class="text-muted">
+                        SSH es fundamental para la administración remota de servidores Linux, proporcionando seguridad mediante cifrado de toda la comunicación.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: Pasos de instalación -->
+            <section class="section" id="ssh-pasos" aria-labelledby="ssh-pasos-title">
+                <header class="section-header">
+                    <span class="section-tag">Instalación</span>
+                    <h2 class="section-title" id="ssh-pasos-title">Pasos para levantar el servicio SSH en Linux</h2>
+                    <p class="section-subtitle">
+                        Proceso completo de instalación y configuración del servicio OpenSSH Server.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <h3>1. Actualizar el sistema</h3>
+                    <p>
+                        Antes de instalar cualquier paquete, se recomienda actualizar la lista de paquetes:
+                    </p>
+                    
+                    <div class="code-label">Comando de actualización</div>
+                    <div class="code-block">
+sudo apt update && sudo apt upgrade -y
+                    </div>
+
+                    <div class="code-label">Ejecución en terminal</div>
+                    <div class="code-block">
+carlos@Host:-$ sudo apt update && sudo apt upgrade -y
+[sudo] password for carlos:
+Get:1 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+Get:2 http://archive.ubuntu.com/ubuntu noble InRelease
+Get:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+Get:4 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1,29 kB]
+Get:5 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+Get:6 http://security.ubuntu.com/ubuntu noble-security/main Translation-en [213 kB]
+                    </div>
+
+                    <h3>2. Instalar el servicio SSH</h3>
+                    <p>
+                        En la mayoría de las distribuciones modernas (Ubuntu, Debian, Fedora, CentOS, etc.) el paquete se llama openssh-server.
+                    </p>
+                    
+                    <div class="code-label">Comando de instalación</div>
+                    <div class="code-block">
+sudo apt install openssh-server -y
+                    </div>
+
+                    <div class="code-label">Ejecución en terminal</div>
+                    <div class="code-block">
+carlos@Host:~$ sudo apt install openssh-server -y
+Waiting for cache lock: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 3849 (unattended-upgr)
+Waiting for cache lock: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 3849 (unattended-upgr)
+Waiting for cache lock: Could not get lock /var/lib/dpkg/lock-frontend. It is held by process 3849 (unattended-upgr)
+                    </div>
+
+                    <h3>3. Iniciar y habilitar el servicio</h3>
+                    <p>
+                        Una vez instalado, se debe activar el servicio SSH para que inicie automáticamente al encender el sistema:
+                    </p>
+                    
+                    <div class="code-label">Habilitar e iniciar SSH</div>
+                    <div class="code-block">
+sudo systemctl enable ssh
+sudo systemctl start ssh
+                    </div>
+
+                    <div class="code-label">Ejecución en terminal</div>
+                    <div class="code-block">
+carlos@Host:~$ sudo systemctl enable ssh
+[sudo] password for carlos:
+Synchronizing state of ssh.service with SysV service script with /usr/lib/systemd/systemd-sysv-install.
+Executing: /usr/lib/systemd/systemd-sysv-install enable ssh
+Created symlink /etc/systemd/system/sshd.service → /usr/lib/systemd/system/ssh.service.
+Created symlink /etc/systemd/system/multi-user.target.wants/ssh.service → /usr/lib/systemd/system/ssh.service.
+
+carlos@Host:~$ sudo systemctl start ssh
+carlos@Host:~$
+                    </div>
+
+                    <p class="text-muted">
+                        Nota: Durante la instalación se muestra un mensaje sobre "cache lock" porque otro proceso (unattended-upgr) estaba usando el gestor de paquetes. Esto es normal y el sistema espera a que se libere el recurso.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: Verificar estado -->
+            <section class="section" id="ssh-estado" aria-labelledby="ssh-estado-title">
+                <header class="section-header">
+                    <span class="section-tag">Verificación</span>
+                    <h2 class="section-title" id="ssh-estado-title">Verificar el estado del servicio</h2>
+                    <p class="section-subtitle">
+                        Comprobar que el servicio esté activo y funcionando correctamente.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <p>
+                        Para verificar el estado del servicio SSH, se utiliza el comando:
+                    </p>
+                    
+                    <div class="code-label">Comando para verificar estado</div>
+                    <div class="code-block">
+sudo systemctl status ssh
+                    </div>
+
+                    <div class="code-label">Salida del comando</div>
+                    <div class="code-block">
+carlos@Host:~$ sudo systemctl status ssh
+● ssh.service - OpenBSD Secure Shell server
+    Loaded: loaded (/usr/lib/systemd/system/ssh.service; enabled; preset: enabled)
+    Active: active (running) since Mon 2025-11-03 21:39:44 UTC; 1min 22s ago
+TriggeredBy: ● ssh.socket
+    Docs: man:sshd(8)
+           man:sshd_config(5)
+    Process: 14930 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+    Main PID: 14932 (sshd)
+    Tasks: 1 (limit: 9206)
+    Memory: 1.2M (peak: 1.8M)
+    CPU: 16ms
+    CGroup: /system.slice/ssh.service
+            └─14932 "sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups"
+
+Nov 03 21:39:44 Host systemd[1]: Starting ssh.service - OpenBSD Secure Shell server...
+Nov 03 21:39:44 Host sshd[14932]: Server listening on 0.0.0.0 port 22.
+Nov 03 21:39:44 Host sshd[14932]: Server listening on :: port 22.
+Nov 03 21:39:44 Host systemd[1]: Started ssh.service - OpenBSD Secure Shell server.
+                    </div>
+
+                    <p class="text-muted">
+                        El estado muestra que el servicio está activo (running), habilitado para iniciar automáticamente (enabled), y escuchando en el puerto 22 tanto para IPv4 (0.0.0.0) como para IPv6 (::).
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: Obtener IP -->
+            <section class="section" id="ssh-ip" aria-labelledby="ssh-ip-title">
+                <header class="section-header">
+                    <span class="section-tag">Configuración</span>
+                    <h2 class="section-title" id="ssh-ip-title">Identificar la IP del servidor</h2>
+                    <p class="section-subtitle">
+                        Obtener la dirección IP del servidor SSH para permitir conexiones remotas.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <p>
+                        Para conocer la dirección IP asignada al servidor, se utiliza el comando:
+                    </p>
+                    
+                    <div class="code-label">Comando para ver interfaces de red</div>
+                    <div class="code-block">
+ip a
+                    </div>
+
+                    <div class="code-label">Salida del comando</div>
+                    <div class="code-block">
+carlos@Host:~$ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute
+       valid_lft forever preferred_lft forever
+2: enp0s3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 08:00:27:3a:46:3e brd ff:ff:ff:ff:ff:ff
+    inet 192.168.4.110/24 brd 192.168.4.255 scope global dynamic noprefixroute enp0s3
+       valid_lft 86295sec preferred_lft 86295sec
+    inet6 fe80::a00:27ff:fe3a:463e/64 scope link
+       valid_lft forever preferred_lft forever
+                    </div>
+
+                    <p>
+                        En este caso, la dirección IP del servidor es: <strong>192.168.4.110</strong>
+                    </p>
+
+                    <p class="text-muted">
+                        La interfaz enp0s3 tiene asignada la IP 192.168.4.110/24, lo que indica que está en la red 192.168.4.0 con máscara 255.255.255.0.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: Conexión remota -->
+            <section class="section" id="ssh-conexion" aria-labelledby="ssh-conexion-title">
+                <header class="section-header">
+                    <span class="section-tag">Conexión</span>
+                    <h2 class="section-title" id="ssh-conexion-title">Conexión remota desde otro dispositivo</h2>
+                    <p class="section-subtitle">
+                        Establecer conexión SSH desde Windows CMD hacia el servidor Linux.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <p>
+                        Para conectarse desde otro dispositivo (en este caso, CMD de Windows), se debe:
+                    </p>
+                    
+                    <ol>
+                        <li>Cambiar el adaptador de red de NAT a Adaptador puente en la configuración de la VM</li>
+                        <li>Usar el comando SSH con la sintaxis: <code>ssh usuario@ip_del_servidor</code></li>
+                    </ol>
+
+                    <div class="code-label">Conexión SSH desde Windows CMD</div>
+                    <div class="code-block">
+C:\Users\Carlo>ssh carlos@192.168.4.110
+The authenticity of host '192.168.4.110 (192.168.4.110)' can't be established.
+ED25519 key fingerprint is SHA256:ICsOM4UujHyVg8f/fc/1YJEWgmmrsPDf8vjmvK5uYg.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.4.110' (ED25519) to the list of known hosts.
+carlos@192.168.4.110's password:
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.14.0-34-generic x86_64)
+
+* Documentation: https://help.ubuntu.com
+* Management: https://landscape.canonical.com
+* Support: https://ubuntu.com/pro
+
+Expanded Security Maintenance for Applications is not enabled.
+
+81 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+Enable ESM Apps to receive additional future security updates.
+See https://ubuntu.com/esm or run: sudo pro status
+
+The programs included with the Ubuntu system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+applicable law.
+
+carlos@host:~$
+                    </div>
+
+                    <p class="text-muted">
+                        La primera vez que te conectas a un servidor SSH, aparece un mensaje sobre la autenticidad del host. Esto es normal y sirve para prevenir ataques man-in-the-middle. Al escribir "yes", la clave del servidor se almacena en el archivo known_hosts del cliente.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: Experimento práctico -->
+            <section class="section" id="ssh-experimento" aria-labelledby="ssh-experimento-title">
+                <header class="section-header">
+                    <span class="section-tag">Práctica</span>
+                    <h2 class="section-title" id="ssh-experimento-title">Experimento práctico con SSH</h2>
+                    <p class="section-subtitle">
+                        Ejecución de comandos remotos para demostrar el funcionamiento de SSH.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <p>
+                        Una vez conectado por SSH, se realizó un experimento para demostrar la capacidad de ejecutar comandos de manera remota:
+                    </p>
+
+                    <h3>Procedimiento:</h3>
+                    <div class="code-label">1. Crear carpeta</div>
+                    <div class="code-block">
+mkdir prueba
+                    </div>
+
+                    <div class="code-label">2. Entrar a la carpeta</div>
+                    <div class="code-block">
+cd prueba
+                    </div>
+
+                    <div class="code-label">3. Crear archivo con contenido</div>
+                    <div class="code-block">
+echo "Hola soy yo desde el cmd" > archivo.txt
+                    </div>
+
+                    <div class="code-label">4. Leer el contenido del archivo</div>
+                    <div class="code-block">
+cat archivo.txt
+                    </div>
+
+                    <h3>Resultado esperado:</h3>
+                    <div class="code-block">
+Hola soy yo desde el cmd
+                    </div>
+
+                    <p class="text-muted">
+                        Este experimento demuestra que a través de SSH se pueden ejecutar comandos de administración del sistema de forma remota, incluyendo la creación y manipulación de archivos y directorios.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: Video demostrativo -->
+            <section class="section" id="ssh-video" aria-labelledby="ssh-video-title">
+                <header class="section-header">
+                    <span class="section-tag">Video</span>
+                    <h2 class="section-title" id="ssh-video-title">Video demostrativo del proceso</h2>
+                    <p class="section-subtitle">
+                        Material audiovisual complementario que muestra el proceso completo de instalación y configuración de SSH.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <div class="video-container">
+                        <h3 class="video-title">Instalación y Configuración de SSH - Tutorial Completo</h3>
+                        <p class="video-description">
+                            Este video muestra el proceso completo de instalación y configuración del servicio SSH en Ubuntu, incluyendo todos los pasos documentados en este reporte.
+                        </p>
+                        
+                        <div class="video-section">
+                            <a href="https://youtu.be/981dLOfIK8I" target="_blank" class="video-link">
+                                <i class="fab fa-youtube"></i> https://youtu.be/981dLOfIK8I
+                            </a>
+                            <p class="text-muted" style="margin-top: 1rem;">
+                                Haz clic en el enlace para ver el video demostrativo que complementa este reporte técnico.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: Conclusión -->
+            <section class="section" id="ssh-conclusion" aria-labelledby="ssh-conclusion-title">
+                <header class="section-header">
+                    <span class="section-tag">Conclusión</span>
+                    <h2 class="section-title" id="ssh-conclusion-title">Resultado y aprendizaje</h2>
+                    <p class="section-subtitle">
+                        Evaluación del proceso y conclusiones sobre el uso de SSH.
+                    </p>
+                </header>
+
+                <div class="section-body">
+                    <p>
+                        El servicio SSH fue instalado y configurado exitosamente, permitiendo:
+                    </p>
+                    
+                    <ul>
+                        <li>Conexión remota segura desde un cliente Windows hacia un servidor Linux</li>
+                        <li>Ejecución de comandos de administración del sistema de forma remota</li>
+                        <li>Creación y manipulación de archivos y directorios a través de la conexión SSH</li>
+                        <li>Verificación del estado del servicio y configuración de inicio automático</li>
+                    </ul>
+
+                    <p>
+                        <strong>Y listo, ya usamos SSH de manera remota se podría decir.</strong>
+                    </p>
+
+                    <p class="text-muted">
+                        Este ejercicio práctico demostró la importancia de SSH como herramienta fundamental para la administración remota de servidores, proporcionando una conexión segura y cifrada para operaciones de mantenimiento y administración del sistema.
+                    </p>
+                </div>
+            </section>
+
+            <footer class="page-footer">
+                Reporte de Servicio SSH · Carlos Eduardo Mungarro Tequida · ID: 247590 · Redes Linux
+                <br>
+                <small style="display: block; margin-top: 0.5rem;">
+                    Video complementario: <a href="https://youtu.be/981dLOfIK8I" style="color: #3498db;">https://youtu.be/981dLOfIK8I</a>
+                </small>
+            </footer>
+        </section>
+    </main>
+</body>
+</html>
