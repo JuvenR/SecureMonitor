@@ -1,0 +1,342 @@
+<main class="layout">
+  <!-- SIDEBAR FTP -->
+  <aside class="sidebar">
+    <div class="sidebar-label">FTP · Índice</div>
+    <div class="sidebar-group">
+      <a href="#ftp-intro" class="sidebar-link">Introducción</a>
+      <a href="#ftp-inst" class="sidebar-link">Instalación y servicio</a>
+      <a href="#ftp-config" class="sidebar-link">Configuración básica</a>
+      <a href="#ftp-usuarios" class="sidebar-link">Usuarios y directorios</a>
+      <a href="#ftp-pruebas" class="sidebar-link">Pruebas de conexión</a>
+      <a href="#ftp-securemonitor" class="sidebar-link">Monitoreo con SecureMonitor</a>
+      <a href="#ftp-notas" class="sidebar-link">Notas y aprendizajes</a>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <section class="content">
+    <!-- HEADER PÁGINA -->
+    <header class="page-header" id="ftp-intro">
+      <div class="page-kicker">Servicio FTP · vsftpd</div>
+      <h1 class="page-title">FTP en el entorno SecureMonitor</h1>
+      <p class="page-lead">
+        En la máquina virtual con <strong>Ubuntu Server 24.04.3 LTS</strong> se habilitó un
+        servicio <strong>FTP</strong> usando <strong>vsftpd</strong>, con el objetivo de
+        simular accesos legítimos y fallidos a un servidor de archivos, y así generar eventos
+        que <strong>SecureMonitor</strong> pueda detectar y visualizar en el dashboard.
+      </p>
+    </header>
+
+    <!-- SECCIÓN: Introducción -->
+    <section class="section" aria-labelledby="ftp-intro-title">
+      <header class="section-header">
+        <span class="section-tag">FTP</span>
+        <h2 class="section-title" id="ftp-intro-title">Rol del servicio FTP en el proyecto</h2>
+        <p class="section-subtitle">
+          vsftpd funciona como uno de los servicios monitoreados por SecureMonitor, junto con SSH y Apache.
+          Permite probar intentos de autenticación desde distintos usuarios y equipos.
+        </p>
+      </header>
+
+      <div class="section-body">
+        <p>
+          El servicio FTP se utilizó principalmente para:
+        </p>
+        <ul>
+          <li>
+            Probar <strong>intentos de inicio de sesión válidos e inválidos</strong> desde clientes FTP.
+          </li>
+          <li>
+            Generar tráfico de autenticación que quede registrado en logs y pueda ser leído por
+            <strong>SecureMonitor</strong>.
+          </li>
+          <li>
+            Simular escenarios en los que un atacante intenta adivinar credenciales de usuarios de la VM.
+          </li>
+        </ul>
+
+        <p class="text-muted">
+          Aunque en producción se suelen usar alternativas más seguras (como SFTP o FTPS),
+          para el laboratorio de Redes Linux, FTP tradicional con <code>vsftpd</code> fue suficiente
+          para practicar instalación, configuración, pruebas y monitoreo.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Instalación y servicio -->
+    <section class="section" id="ftp-inst" aria-labelledby="ftp-inst-title">
+      <header class="section-header">
+        <span class="section-tag">Instalación</span>
+        <h2 class="section-title" id="ftp-inst-title">Instalación y administración del servicio vsftpd</h2>
+        <p class="section-subtitle">
+          Cómo se instaló vsftpd en la máquina virtual y cómo se controla el servicio usando systemd.
+        </p>
+      </header>
+
+      <div class="section-body">
+        <p>
+          En la VM con <strong>Ubuntu Server 24.04.3 LTS</strong> se instaló
+          <strong>vsftpd</strong> desde los repositorios oficiales usando <code>apt</code>:
+        </p>
+
+        <div class="code-label">Instalación de vsftpd</div>
+        <div class="code-block">
+sudo apt update
+sudo apt install vsftpd
+        </div>
+
+        <p>
+          Una vez instalado, el servicio se administra con <strong>systemd</strong>:
+        </p>
+
+        <div class="code-label">Control del servicio</div>
+        <div class="code-block">
+sudo systemctl status vsftpd
+sudo systemctl start vsftpd
+sudo systemctl enable vsftpd
+sudo systemctl restart vsftpd
+        </div>
+
+        <p class="text-muted">
+          Con <code>enable</code>, el servicio FTP queda configurado para iniciar automáticamente
+          cuando arranca la máquina virtual, lo que facilita las pruebas repetidas durante el curso.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Configuración básica -->
+    <section class="section" id="ftp-config" aria-labelledby="ftp-config-title">
+      <header class="section-header">
+        <span class="section-tag">Configuración</span>
+        <h2 class="section-title" id="ftp-config-title">Configuración básica de vsftpd</h2>
+        <p class="section-subtitle">
+          Parámetros clave en <code>/etc/vsftpd.conf</code> para definir el comportamiento del servidor FTP.
+        </p>
+      </header>
+
+      <div class="section-body">
+        <p>
+          La configuración de vsftpd se realizó editando el archivo
+          <code>/etc/vsftpd.conf</code>. Algunos parámetros relevantes fueron:
+        </p>
+
+        <div class="code-label">Fragmento típico de /etc/vsftpd.conf</div>
+        <div class="code-block">
+listen=NO
+listen_ipv6=YES
+
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+
+chroot_local_user=YES
+allow_writeable_chroot=YES
+
+local_umask=022
+use_localtime=YES
+xferlog_std_format=YES
+        </div>
+
+        <ul>
+          <li>
+            <strong>anonymous_enable=NO</strong> · Deshabilita acceso anónimo al servidor FTP.
+          </li>
+          <li>
+            <strong>local_enable=YES</strong> · Permite que usuarios locales de la VM se autentiquen.
+          </li>
+          <li>
+            <strong>write_enable=YES</strong> · Habilita operaciones de escritura (subir/borrar archivos).
+          </li>
+          <li>
+            <strong>chroot_local_user=YES</strong> · “Enjaula” a los usuarios en su directorio home.
+          </li>
+        </ul>
+
+        <p class="text-muted">
+          Después de editar el archivo, se reinició el servicio con
+          <code>sudo systemctl restart vsftpd</code> para aplicar los cambios.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Usuarios y directorios -->
+    <section class="section" id="ftp-usuarios" aria-labelledby="ftp-usuarios-title">
+      <header class="section-header">
+        <span class="section-tag">Usuarios</span>
+        <h2 class="section-title" id="ftp-usuarios-title">Usuarios y directorios usados por FTP</h2>
+        <p class="section-subtitle">
+          Organización básica de usuarios locales para hacer pruebas de acceso FTP.
+        </p>
+      </header>
+
+      <div class="section-body">
+        <p>
+          Para las pruebas de FTP se trabajó con usuarios locales de la VM. Un ejemplo típico:
+        </p>
+
+        <div class="code-label">Creación de un usuario de pruebas</div>
+        <div class="code-block">
+sudo adduser alumno1
+# seguir el asistente para contraseña y datos básicos
+        </div>
+
+        <p>
+          Opcionalmente se puede agrupar a usuarios de FTP en un grupo dedicado:
+        </p>
+
+        <div class="code-block">
+sudo groupadd ftpusers
+sudo usermod -aG ftpusers alumno1
+        </div>
+
+        <p>
+          El directorio principal de trabajo para ese usuario sería:
+          <code>/home/alumno1</code>, y gracias a <code>chroot_local_user=YES</code>,
+          queda restringido a su propio home al conectarse por FTP.
+        </p>
+
+        <p class="text-muted">
+          Esta organización permite simular escenarios de práctica donde algunos usuarios
+          solo tienen acceso a FTP, mientras que otros usan SSH o cuentan con permisos de administración.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Pruebas de conexión -->
+    <section class="section" id="ftp-pruebas" aria-labelledby="ftp-pruebas-title">
+      <header class="section-header">
+        <span class="section-tag">Pruebas</span>
+        <h2 class="section-title" id="ftp-pruebas-title">Pruebas de conexión y fallos</h2>
+        <p class="section-subtitle">
+          Ejemplos de conexiones válidas e inválidas usadas para generar eventos en los logs.
+        </p>
+      </header>
+
+      <div class="section-body">
+        <p>
+          Desde otra máquina del laboratorio (o desde el host) se realizaron pruebas de conexión
+          usando clientes FTP de línea de comandos:
+        </p>
+
+        <div class="code-label">Conexión FTP básica</div>
+        <div class="code-block">
+ftp &lt;IP_DE_LA_VM&gt;
+# usuario: alumno1
+# password: (la definida en adduser)
+        </div>
+
+        <p>
+          Para generar eventos de error, también se hicieron intentos con contraseñas incorrectas:
+        </p>
+
+        <div class="code-label">Intentos fallidos</div>
+        <div class="code-block">
+ftp &lt;IP_DE_LA_VM&gt;
+# usuario: alumno1
+# password: (contraseña incorrecta varias veces)
+        </div>
+
+        <p class="text-muted">
+          Estos intentos fallidos son los que resultan interesantes para
+          <strong>SecureMonitor</strong>, ya que se traducen en alertas y posibles bloqueos
+          cuando una IP excede el umbral de fallos configurado.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Monitoreo con SecureMonitor -->
+    <section class="section" id="ftp-securemonitor" aria-labelledby="ftp-securemonitor-title">
+      <header class="section-header">
+        <span class="section-tag">SecureMonitor</span>
+        <h2 class="section-title" id="ftp-securemonitor-title">Cómo SecureMonitor observa FTP</h2>
+        <p class="section-subtitle">
+          Relación entre vsftpd, sus archivos de log y los contadores internos del daemon.
+        </p>
+      </header>
+
+      <div class="section-body">
+        <p>
+          SecureMonitor se configuró para leer los eventos de FTP desde los logs del sistema,
+          donde se registran los intentos de autenticación de vsftpd. A partir de esos registros:
+        </p>
+
+        <ul>
+          <li>
+            Identifica la <strong>IP de origen</strong> de cada intento de conexión FTP.
+          </li>
+          <li>
+            Cuenta la cantidad de <strong>intentos fallidos por IP</strong> en una ventana de tiempo.
+          </li>
+          <li>
+            Genera <strong>alertas</strong> con severidad (LOW/MEDIUM/HIGH) cuando se superan ciertos umbrales.
+          </li>
+          <li>
+            Si se activa el bloqueo automático, envía la IP a UFW para que quede bloqueada.
+          </li>
+        </ul>
+
+        <div class="code-label">Ejemplo simplificado de entrada de log (formato ilustrativo)</div>
+        <div class="code-block">
+Nov 30 12:41:10 securemonitor-vm vsftpd[1234]: FAILED LOGIN: Client "203.0.113.5", user "alumno1"
+        </div>
+
+        <p>
+          Cuando SecureMonitor detecta varias líneas como la anterior desde la misma IP,
+          incrementa el contador interno para FTP y, si se supera el umbral definido,
+          registra una alerta que aparece en el dashboard.
+        </p>
+
+        <p class="text-muted">
+          En la interfaz web de SecureMonitor, estos eventos se reflejan en:
+        </p>
+        <ul>
+          <li>El panel de <strong>stats FTP</strong> (número de intentos fallidos).</li>
+          <li>La tabla de <strong>alertas recientes</strong>.</li>
+          <li>La lista de <strong>IPs bloqueadas</strong>, si se aplicó la acción de firewall.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: Notas y aprendizajes -->
+    <section class="section" id="ftp-notas" aria-labelledby="ftp-notas-title">
+      <header class="section-header">
+        <span class="section-tag">Reflexión</span>
+        <h2 class="section-title" id="ftp-notas-title">Notas y aprendizajes sobre FTP</h2>
+        <p class="section-subtitle">
+          Comentarios finales sobre el uso de FTP en el laboratorio y su relación con la seguridad.
+        </p>
+      </header>
+
+      <div class="section-body">
+        <p>
+          Trabajar con FTP en este proyecto permitió:
+        </p>
+        <ul>
+          <li>
+            Reforzar la instalación y administración de servicios de red en Linux usando
+            <strong>systemd</strong> y <strong>apt</strong>.
+          </li>
+          <li>
+            Observar de primera mano cómo los intentos de autenticación se reflejan en los
+            <strong>logs del sistema</strong>.
+          </li>
+          <li>
+            Conectar un servicio clásico como FTP con un daemon de seguridad moderno
+            como <strong>SecureMonitor</strong>.
+          </li>
+        </ul>
+
+        <p class="text-muted">
+          Aunque FTP no es el protocolo más recomendable en escenarios reales por temas de seguridad,
+          en el contexto del laboratorio fue útil para practicar conceptos de
+          <strong>servicios, logs y monitoreo</strong>, que son transferibles a tecnologías más seguras
+          como SFTP o FTPS.
+        </p>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      Proyecto Integrador · Redes Linux · Servicio FTP (vsftpd) · Equipo SecureMonitor
+    </footer>
+  </section>
+</main>

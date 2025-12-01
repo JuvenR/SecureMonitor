@@ -1,0 +1,554 @@
+<main class="layout">
+  <!-- SIDEBAR SCROLL NAV -->
+  <aside class="sidebar">
+    <div class="sidebar-label">General</div>
+    <div class="sidebar-group">
+      <a href="#intro" class="sidebar-link">Introducción</a>
+    </div>
+
+    <div class="sidebar-label">Criterios</div>
+    <div class="sidebar-group">
+      <a href="#c1-distribucion" class="sidebar-link">1. Distribución Linux</a>
+      <a href="#c2-sistema" class="sidebar-link">2. Sistema de archivos y paquetes</a>
+      <a href="#c3-particionado" class="sidebar-link">3. Particionado e instalación</a>
+      <a href="#c4-respaldo" class="sidebar-link">4. Respaldo</a>
+      <a href="#c5-usuarios" class="sidebar-link">5. Usuarios y grupos</a>
+      <a href="#c6-privilegios" class="sidebar-link">6. Gestión de privilegios</a>
+      <a href="#c7-montaje" class="sidebar-link">7. Montaje de sistemas de archivos</a>
+      <a href="#c8-entorno" class="sidebar-link">8. Entorno gráfico</a>
+      <a href="#c9-servicios" class="sidebar-link">9. Gestor de sistemas y servicios</a>
+      <a href="#c10-servicio" class="sidebar-link">10. Servicio SecureMonitor</a>
+      <a href="#c11-conclusiones" class="sidebar-link">11. Conclusiones</a>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO SCROLL -->
+  <section class="content">
+    <!-- INTRO / RESUMEN -->
+    <header class="page-header" id="intro">
+      <div class="page-kicker">Proyecto integrador · Redes Linux</div>
+      <h1 class="page-title">SecureMonitor en Linux</h1>
+      <p class="page-lead">
+        Este sitio resume cómo montamos nuestro entorno en
+        <strong>Ubuntu Server 24.04.3 LTS</strong> en una máquina virtual y cómo integramos
+        <strong>SecureMonitor</strong>, un daemon de seguridad que vigila SSH, FTP y Apache,
+        genera alertas y puede bloquear IPs sospechosas desde un dashboard web.
+      </p>
+    </header>
+
+    <section class="section" aria-labelledby="intro-objetivos">
+      <header class="section-header">
+        <span class="section-tag">Resumen</span>
+        <h2 class="section-title" id="intro-objetivos">Objetivo general y equipo</h2>
+        <p class="section-subtitle">
+          Una vista rápida de lo que queremos lograr con este proyecto y quién hizo qué.
+        </p>
+      </header>
+      <div class="section-body">
+        <h3 style="margin-bottom:0.4rem;">Objetivo general</h3>
+        <p class="text-muted">
+          Diseñar, implementar y documentar un entorno Linux seguro que integre el servicio
+          <strong>SecureMonitor</strong> como daemon de monitoreo. La idea es detectar
+          intentos de intrusión en SSH, FTP y Apache, reaccionar automáticamente (por ejemplo,
+          bloqueando IPs) y mostrar todo de forma clara en un dashboard web.
+        </p>
+
+        <h3 style="margin-top:1.1rem; margin-bottom:0.35rem;">Objetivos específicos</h3>
+        <ul>
+          <li>
+            Configurar una distribución Linux orientada a servidores, definiendo sistema de
+            archivos, particionado, usuarios y permisos con buenas prácticas de seguridad.
+          </li>
+          <li>
+            Implementar y documentar el daemon <strong>SecureMonitor</strong>, capaz de leer
+            logs de SSH, FTP y Apache, generar alertas con niveles de severidad y
+            realizar bloqueo automático de IPs mediante UFW.
+          </li>
+          <li>
+            Publicar un dashboard web accesible para el monitoreo remoto del servidor,
+            con estadísticas, historial de eventos y herramientas básicas de administración.
+          </li>
+        </ul>
+
+        <h3 id="equipo" style="margin-top:1.1rem; margin-bottom:0.35rem;">Equipo</h3>
+        <ul>
+          <li><strong>Carlos Juven Ríos Burgueño</strong> · 00000233537</li>
+          <li><strong>Ruben Said Gutierrez Bojorquez</strong> · ID</li>
+          <li><strong>Carlos Eduardo Mungarro Tequida</strong> · ID</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CRITERIO 1 -->
+    <section id="c1-distribucion" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 1</span>
+        <h2 class="section-title">Distribución Linux</h2>
+        <p class="section-subtitle">
+          Qué distro usamos, por qué y en qué contexto la montamos.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Para el proyecto usamos
+          <strong>Ubuntu Server 24.04.3 LTS</strong>, instalada en una
+          <strong>máquina virtual de laboratorio</strong>. Es una distro orientada a servidores,
+          con soporte de largo plazo y una comunidad enorme, lo que hace muy fácil encontrar
+          documentación y paquetes recientes.
+        </p>
+        <ul>
+          <li>
+            <strong>Propósito:</strong> servir como sistema operativo base para un servidor
+            de prácticas con servicios SSH, FTP (vsftpd) y Apache, además del daemon SecureMonitor.
+          </li>
+          <li>
+            <strong>Antecedentes:</strong> Ubuntu se basa en Debian, hereda el formato de paquetes
+            <code>.deb</code> y el uso de <code>apt</code> como gestor de paquetes. Es muy común
+            en servidores en la nube y en escenarios educativos.
+          </li>
+          <li>
+            <strong>Ventajas para nosotros:</strong> integración sencilla con UFW, systemd y
+            repos oficiales que ya traen todo lo que necesitamos para el proyecto.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CRITERIO 2 -->
+    <section id="c2-sistema" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 2</span>
+        <h2 class="section-title">Sistema de archivos y gestor de paquetes</h2>
+        <p class="section-subtitle">
+          Cómo se guarda la información en disco y cómo instalamos software.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Instalamos la VM con <strong>ext4</strong> como sistema de archivos principal y usamos
+          <strong>APT</strong> para manejar los paquetes de software en Ubuntu Server 24.04.3 LTS.
+        </p>
+        <ul>
+          <li>
+            <strong>Sistema de archivos:</strong> <code>ext4</code>
+            <ul>
+              <li>Incluye journaling (bitácora), lo que ayuda a recuperarse mejor después de un fallo.</li>
+              <li>Es el sistema por defecto en muchas distros de servidor, así que es una opción segura.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Gestor de paquetes:</strong> <code>apt</code> (Advanced Package Tool)
+            <ul>
+              <li>Instalamos servicios como <code>openssh-server</code>, <code>vsftpd</code>,
+                <code>apache2</code> y las dependencias para compilar SecureMonitor en Go.</li>
+              <li>Actualizamos con comandos clásicos como <code>sudo apt update</code> y
+                <code>sudo apt upgrade</code>, para mantener la VM al día en parches de seguridad.</li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CRITERIO 3 -->
+    <section id="c3-particionado" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 3</span>
+        <h2 class="section-title">Particionado e instalación</h2>
+        <p class="section-subtitle">
+          Cómo repartimos el disco de la VM y qué pasos seguimos en la instalación.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Definimos un particionado simple para Ubuntu Server 24.04.3 LTS dentro de la
+          <strong>máquina virtual</strong>, suficiente para los servicios y para SecureMonitor.
+        </p>
+        <ul>
+          <li><strong>/</strong> (raíz): 20–25 GB · Sistema, binarios y paquetes.</li>
+          <li><strong>/home</strong>: 10–20 GB · Directorios de usuarios de pruebas.</li>
+          <li><strong>/var/log</strong>: 5–10 GB · Logs del sistema, servicios y SecureMonitor.</li>
+          <li><strong>swap</strong>: 2–4 GB (dependiendo de la RAM asignada a la VM).</li>
+        </ul>
+        <br>
+        <p>
+          Durante el asistente de instalación:
+        </p>
+        <ul>
+          <li>Seleccionamos el idioma (Español / Inglés, según preferencia).</li>
+          <li>Elegimos instalación mínima con servidor OpenSSH.</li>
+          <li>Asignamos un nombre de host, por ejemplo <code>securemonitor-vm</code>.</li>
+          <li>Definimos un usuario administrador con contraseña fuerte.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CRITERIO 4 -->
+    <section id="c4-respaldo" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 4</span>
+        <h2 class="section-title">Respaldo</h2>
+        <p class="section-subtitle">
+          Qué vale la pena respaldar y un ejemplo de script para hacerlo.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Para no perder configuraciones importantes, decidimos respaldar tanto los
+          archivos de los servicios como los componentes clave de SecureMonitor.
+        </p>
+        <ul>
+          <li>Configuración de SSH, FTP y Apache:
+            <strong>/etc/ssh/</strong>, <strong>/etc/vsftpd.conf</strong>, <strong>/etc/apache2/</strong>.
+          </li>
+          <li>Reglas del firewall en <strong>/etc/ufw/</strong>.</li>
+          <li>La unidad systemd de SecureMonitor:
+            <strong>/etc/systemd/system/securemonitor.service</strong>.</li>
+          <li>Logs de SecureMonitor en <strong>/var/log/securemonitor/</strong>.</li>
+          <li>Binario de SecureMonitor y su configuración.</li>
+        </ul>
+
+        <div class="code-label">Script ejemplo de respaldo</div>
+        <div class="code-block">
+#!/bin/bash
+# backup_securemonitor.sh
+
+FECHA=$(date +"%Y-%m-%d_%H-%M")
+DEST="/home/backup/securemonitor_$FECHA.tar.gz"
+
+sudo tar -czf "$DEST" \
+  /etc/ssh/ \
+  /etc/vsftpd.conf \
+  /etc/apache2/ \
+  /etc/ufw/ \
+  /etc/systemd/system/securemonitor.service \
+  /var/log/securemonitor/ \
+  /usr/local/bin/securemonitor
+
+echo "Respaldo generado en $DEST"
+        </div>
+        <p class="text-muted">
+          Este script se puede programar con <code>cron</code> para que el respaldo se haga solo
+          cada cierto tiempo y se copie a otro disco o a otra máquina.
+        </p>
+      </div>
+    </section>
+
+    <!-- CRITERIO 5 -->
+    <section id="c5-usuarios" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 5</span>
+        <h2 class="section-title">Administración de usuarios y grupos</h2>
+        <p class="section-subtitle">
+          Cómo organizamos cuentas y grupos para las pruebas en la VM.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          En el servidor distinguimos entre usuarios administradores y usuarios de pruebas,
+          agrupándolos según el tipo de acceso que necesitan.
+        </p>
+        <ul>
+          <li><code>sudo adduser alumno1</code> · Crea un usuario de práctica.</li>
+          <li><code>sudo usermod -aG sudo alumno1</code> · Le damos permisos administrativos (si es necesario).</li>
+          <li><code>sudo groupadd ftpusers</code> · Grupo específico para accesos FTP.</li>
+          <li><code>sudo usermod -aG ftpusers alumno1</code> · Lo agregamos al grupo FTP.</li>
+          <li><code>sudo deluser alumno1</code> y <code>sudo delgroup ftpusers</code> · Limpieza al finalizar.</li>
+        </ul>
+        <br>
+        <p class="text-muted">
+          Así podemos probar escenarios diferentes: usuarios solo con FTP, con SSH,
+          o con permisos elevados mediante <code>sudo</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- CRITERIO 6 -->
+    <section id="c6-privilegios" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 6</span>
+        <h2 class="section-title">Gestión de privilegios</h2>
+        <p class="section-subtitle">
+          Qué dejamos hacer solo a root y cómo cuidamos los permisos.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          La gestión de privilegios gira alrededor de <strong>sudo</strong>, permisos de
+          archivos y una configuración conservadora de los servicios.
+        </p>
+        <ul>
+          <li>
+            <strong>Sudo:</strong> solo el usuario administrador pertenece al grupo
+            <code>sudo</code>. Esto reduce el riesgo de cambios críticos por error.
+          </li>
+          <li>
+            <strong>Archivos sensibles:</strong> el binario de SecureMonitor se instala como:
+            <br />
+            <code>sudo chown root:root /usr/local/bin/securemonitor</code><br />
+            <code>sudo chmod 750 /usr/local/bin/securemonitor</code>
+          </li>
+          <li>
+            <strong>Servicios:</strong> en SSH, FTP y Apache se evitaron logins como root
+            y se limitaron los directorios a los realmente necesarios.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CRITERIO 7 -->
+    <section id="c7-montaje" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 7</span>
+        <h2 class="section-title">Montaje de sistemas de archivos</h2>
+        <p class="section-subtitle">
+          Cómo agregar un disco extra para respaldos o logs y montarlo de forma persistente.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Para separar respaldos o logs en otro disco de la VM, podemos añadir un volumen
+          nuevo y montarlo en <code>/mnt/backups</code>.
+        </p>
+        <ul>
+          <li><code>sudo mkdir -p /mnt/backups</code></li>
+          <li><code>sudo mount /dev/sdb1 /mnt/backups</code> · Montaje temporal.</li>
+          <li>Luego editamos <code>/etc/fstab</code> para que el montaje sea automático:</li>
+        </ul>
+
+        <div class="code-label">Ejemplo de entrada en /etc/fstab</div>
+        <div class="code-block">
+/dev/sdb1   /mnt/backups   ext4   defaults   0   2
+        </div>
+
+        <p class="text-muted">
+          Con esto, cada vez que la VM arranca, el sistema de archivos se monta solo
+          y los respaldos tienen su propia “zona” de almacenamiento.
+        </p>
+      </div>
+    </section>
+
+    <!-- CRITERIO 8 -->
+    <section id="c8-entorno" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 8</span>
+        <h2 class="section-title">Entorno gráfico</h2>
+        <p class="section-subtitle">
+          Qué entorno gráfico usamos en la VM y para qué lo aprovechamos.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Aunque la distro es de servidor, nuestra
+          <strong>máquina virtual de Ubuntu 24.04.3</strong> tiene
+          <strong>entorno gráfico</strong> (tipo GNOME / Ubuntu Desktop), lo cual ayuda
+          bastante para demostrar el proyecto.
+        </p>
+        <ul>
+          <li>
+            Usamos la GUI para validar conectividad, abrir navegadores y ver el dashboard
+            de SecureMonitor directamente desde la VM.
+          </li>
+          <li>
+            La configuración real (instalar paquetes, ajustar servicios, probar reglas de firewall)
+            se hizo en terminal y muchas veces desde otra máquina por SSH.
+          </li>
+        </ul>
+        <br>
+        <p class="text-muted">
+          Es un modelo híbrido: aprovechamos la comodidad del entorno gráfico para explicar
+          el proyecto en clase, pero mantenemos prácticas de administración de servidor reales.
+        </p>
+      </div>
+    </section>
+
+    <!-- CRITERIO 9 -->
+    <section id="c9-servicios" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 9</span>
+        <h2 class="section-title">Gestor de sistemas y servicios</h2>
+        <p class="section-subtitle">
+          Cómo usamos systemd para controlar servicios y el propio SecureMonitor.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Ubuntu Server 24.04.3 LTS usa <strong>systemd</strong> como gestor de sistemas
+          y servicios. Desde ahí controlamos SSH, FTP, Apache y el daemon SecureMonitor.
+        </p>
+        <ul>
+          <li><code>sudo systemctl status ssh</code> · Ver estado del servicio SSH.</li>
+          <li><code>sudo systemctl enable vsftpd</code> · Habilitar vsftpd al arranque.</li>
+          <li><code>sudo systemctl restart apache2</code> · Reiniciar Apache tras cambios.</li>
+          <li><code>sudo systemctl status securemonitor</code> · Ver si el daemon está corriendo bien.</li>
+        </ul>
+
+        <div class="code-label">Unidad systemd de SecureMonitor</div>
+        <div class="code-block">
+[Unit]
+Description=SecureMonitor daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/securemonitor
+Restart=on-failure
+User=root
+
+[Install]
+WantedBy=multi-user.target
+        </div>
+      </div>
+    </section>
+
+    <!-- CRITERIO 10 -->
+    <section id="c10-servicio" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 10</span>
+        <h2 class="section-title">Servicio específico: SecureMonitor</h2>
+        <p class="section-subtitle">
+          Qué hace SecureMonitor, cómo se instala y cómo se conecta con SSH, FTP y Apache.
+        </p>
+      </header>
+      <div class="section-body">
+        <h3>Descripción general</h3>
+        <p>
+          <strong>SecureMonitor</strong> es el “vigilante” de nuestra VM. Es un daemon en Go que
+          corre en segundo plano, lee logs de varios servicios y toma decisiones de seguridad:
+          genera alertas, clasifica la severidad y, si hace falta, bloquea IPs usando UFW.
+        </p>
+        <ul>
+          <li>Vigila <strong>SSH</strong>, <strong>FTP (vsftpd)</strong> y <strong>Apache</strong>.</li>
+          <li>Cuenta intentos fallidos y calcula la severidad de cada alerta.</li>
+          <li>Consulta el país de origen de la IP atacante (geoip).</li>
+          <li>Puede añadir reglas a UFW para bloquear IPs automáticamente.</li>
+          <li>Expone un <strong>dashboard web</strong> con estadísticas, logs y lista de IPs bloqueadas.</li>
+        </ul>
+
+        <h3 id="ssh" style="margin-top:1rem;">SSH</h3>
+        <p>
+          Para <strong>SSH</strong> nos enfocamos en intentos de autenticación fallidos. SecureMonitor
+          lee registros (por ejemplo, de <code>/var/log/auth.log</code>) y detecta patrones como:
+        </p>
+        <ul>
+          <li>Muchos intentos seguidos desde la misma IP.</li>
+          <li>Usuarios inexistentes o nombres sospechosos.</li>
+        </ul>
+        <br>
+        <p class="text-muted">
+          Cuando se pasan ciertos umbrales, se genera una alerta en el dashboard y, si está
+          habilitado, se puede bloquear la IP automáticamente.
+        </p>
+
+        <h3 id="ftp" style="margin-top:1rem;">FTP (vsftpd)</h3>
+        <p>
+          Para <strong>FTP</strong> usamos <strong>vsftpd</strong>. SecureMonitor revisa sus logs
+          (por ejemplo <code>/var/log/vsftpd.log</code>) y registra:
+        </p>
+        <ul>
+          <li>Sesiones con credenciales incorrectas.</li>
+          <li>IPs que fallan varias veces en poco tiempo.</li>
+        </ul>
+        <br>
+        <p class="text-muted">
+          Esto nos sirve para detectar fuerza bruta sobre FTP y reaccionar igual que con SSH:
+          alertas, severidad y posible bloqueo de IP.
+        </p>
+
+        <h3 id="apache" style="margin-top:1rem;">Apache</h3>
+        <p>
+          En <strong>Apache</strong> nos interesan principalmente códigos de error 4xx y 5xx
+          repetidos desde la misma IP. SecureMonitor analiza los archivos de log de Apache,
+          como <code>access.log</code> y <code>error.log</code>, para encontrar:
+        </p>
+        <ul>
+          <li>Muchos errores 401/403 (accesos no autorizados).</li>
+          <li>Secuencias de errores 404/500 que pueden indicar escaneo agresivo.</li>
+        </ul>
+        <br>
+        <p class="text-muted">
+          Cuando se detecta un patrón anormal, se genera una alerta asociada al servicio Apache
+          y se muestra en la tabla de “Alertas recientes” del dashboard.
+        </p>
+
+        <h3 style="margin-top:1rem;">Instalación básica</h3>
+        <p>Para compilar y desplegar SecureMonitor en la VM:</p>
+        <div class="code-label">Compilación</div>
+        <div class="code-block">
+cd ~/securemonitor
+go build -o securemonitor ./cmd/securemonitor
+sudo mv securemonitor /usr/local/bin/
+        </div>
+
+        <h3>Registro como servicio</h3>
+        <p>
+          Después de crear <code>/etc/systemd/system/securemonitor.service</code>, recargamos
+          systemd y levantamos el daemon:
+        </p>
+        <div class="code-block">
+sudo systemctl daemon-reload
+sudo systemctl enable securemonitor
+sudo systemctl start securemonitor
+sudo systemctl status securemonitor
+        </div>
+
+        <h3>Dashboard web</h3>
+        <p>
+          El dashboard corre en un puerto interno (por ejemplo <strong>9000</strong>) y se
+          publica a Internet mediante un túnel seguro (Cloudflare Tunnel), usando un dominio
+          como:
+        </p>
+        <div class="code-label">Ejemplo de acceso al dashboard</div>
+        <div class="code-block">
+https://securemonitor.juvenr.com
+        </div>
+        <p class="text-muted">
+          Desde ahí podemos ver stats, logs en tiempo casi real y la lista de IPs bloqueadas.
+        </p>
+      </div>
+    </section>
+
+    <!-- CRITERIO 11 -->
+    <section id="c11-conclusiones" class="section">
+      <header class="section-header">
+        <span class="section-tag">Criterio 11</span>
+        <h2 class="section-title">Conclusiones</h2>
+        <p class="section-subtitle">
+          Qué nos dejó este proyecto como experiencia de Linux y como futuros ingenieros en software.
+        </p>
+      </header>
+      <div class="section-body">
+        <p>
+          Trabajar con <strong>Ubuntu Server 24.04.3 LTS</strong> en una
+          <strong>máquina virtual con entorno gráfico</strong> nos permitió tener un entorno
+          cercano a producción, pero al mismo tiempo cómodo para explicar y demostrar en clase.
+        </p>
+        <p>
+          A nivel de formación como ingenieros en software, el proyecto nos ayudó a:
+        </p>
+        <ul>
+          <li>
+            Practicar la <strong>administración de servicios en Linux</strong>: systemd, firewall,
+            usuarios, permisos y montajes.
+          </li>
+          <li>
+            Desarrollar un <strong>daemon de seguridad</strong> que habla directamente con el
+            sistema operativo a través de sus logs y toma decisiones automáticas.
+          </li>
+          <li>
+            Diseñar una <strong>interfaz web orientada a observabilidad</strong>, conectando un
+            backend en Go con un dashboard enfocado en la experiencia del administrador.
+          </li>
+        </ul>
+        <br>
+        <p class="text-muted">
+          En resumen, SecureMonitor nos obligó a ver el sistema completo: desde la distribución
+          Linux y sus servicios, hasta el diseño de una herramienta propia de monitoreo.
+        </p>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      Proyecto Integrador · Redes Linux · Equipo SecureMonitor (ISW · 7.º semestre)
+    </footer>
+  </section>
+</main>

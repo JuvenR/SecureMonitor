@@ -1,0 +1,128 @@
+<main class="layout">
+  <!-- SIDEBAR con anclas a cada integrante -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Equipo</div>
+    <div class="sidebar-group">
+      <a href="#juven" class="sidebar-link">Carlos Juven</a>
+      <a href="#carlos" class="sidebar-link">Carlos Eduardo</a>
+      <a href="#ruben" class="sidebar-link">Ruben Said</a>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <section class="content">
+    <!-- HEADER PÁGINA -->
+    <header class="page-header" id="equipo">
+      <div class="page-kicker">Proyecto integrador · Redes Linux</div>
+      <h1 class="page-title">Equipo SecureMonitor</h1>
+      <p class="page-lead">
+        El proyecto se registró como trabajo en equipo dentro de la materia de Redes Linux.
+        Aquí se describe la participación de cada integrante y, en particular, la implementación
+        técnica del servicio SecureMonitor.
+      </p>
+    </header>
+
+    <!-- SECCIÓN EQUIPO -->
+    <section class="section" aria-labelledby="equipo-titulo">
+      <header class="section-header">
+        <span class="section-tag">Equipo</span>
+        <h2 class="section-title" id="equipo-titulo">Integrantes y participación</h2>
+        <p class="section-subtitle">
+          El proyecto se desarrolló sobre una misma máquina virtual y un mismo servicio.
+          A continuación se describen los integrantes y la forma en que participaron en la entrega.
+        </p>
+      </header>
+
+      <div class="team-grid">
+        <!-- JUVEN -->
+        <div class="section-body team-card" id="juven">
+          <div class="team-card-header">
+            <div>
+              <div class="team-name">Carlos Juven Ríos Burgueño</div>
+              <div style="margin-top:0.3rem;">
+                <span class="team-pill">
+                  <span class="team-pill-dot"></span>
+                  Servicio FTP · SecureMonitor · Administración Linux
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-muted" style="margin-top:0.6rem;">
+            Se encargó del diseño e implementación de <strong>SecureMonitor</strong> como daemon
+            en Go, de la integración con el servicio <strong>FTP</strong> y de la mayor parte de la
+            administración de la distro y del dashboard web.
+          </p>
+
+          <ul class="team-list">
+            <li>Instalación y configuración del servicio FTP (<code>vsftpd</code>) y pruebas de autenticación.</li>
+            <li>Diseño de la arquitectura del daemon SecureMonitor (módulos para SSH, FTP y Apache).</li>
+            <li>Implementación de lectura de logs, generación de alertas y bloqueo de IPs vía UFW.</li>
+            <li>Creación del dashboard SecureMonitor, con estadísticas, logs y alertas en tiempo casi real.</li>
+            <li>Configuración de la unidad de <code>systemd</code> para SecureMonitor y puesta en marcha como servicio del sistema.</li>
+            <li>Pruebas de simulación de ataques, ajuste de umbrales y análisis de resultados.</li>
+          </ul>
+        </div>
+
+        <!-- CARLOS EDUARDO -->
+        <div class="section-body team-card" id="carlos">
+          <div class="team-card-header">
+            <div>
+              <div class="team-name">Carlos Eduardo Mungarro Tequida</div>
+              <div style="margin-top:0.3rem;">
+                <span class="team-pill">
+                  <span class="team-pill-dot"></span>
+                  Servicio SSH · Documentación
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-muted" style="margin-top:0.6rem;">
+            Se encargó de levantar el servicio <strong>SSH</strong> en Ubuntu Server y de documentar
+            su uso y configuración dentro del sitio del proyecto, además de apoyar en la estructura
+            general de la documentación.
+          </p>
+
+          <ul class="team-list">
+            <li>Instalación y configuración de <code>openssh-server</code> en la máquina virtual.</li>
+            <li>Pruebas de conexión remota vía SSH y verificación de acceso seguro al servidor.</li>
+            <li>Documentación del servicio SSH en el sitio del proyecto: propósito, comandos principales y archivos clave.</li>
+            <li>Apoyo en la organización y redacción de secciones de la página de documentación para que fueran claras en la presentación.</li>
+          </ul>
+        </div>
+
+        <!-- RUBEN SAID -->
+        <div class="section-body team-card" id="ruben">
+          <div class="team-card-header">
+            <div>
+              <div class="team-name">Ruben Said Gutierrez Bojorquez</div>
+              <div style="margin-top:0.3rem;">
+                <span class="team-pill">
+                  <span class="team-pill-dot"></span>
+                  Servicio Apache · Documentación
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-muted" style="margin-top:0.6rem;">
+            Se encargó del servicio <strong>Apache</strong>, desde su instalación hasta la revisión
+            de sus logs, además de documentar su configuración y uso como parte del proyecto SecureMonitor.
+          </p>
+
+          <ul class="team-list">
+            <li>Instalación y configuración del servidor web <code>apache2</code> en Ubuntu Server.</li>
+            <li>Configuración de sitios de prueba y verificación de acceso HTTP.</li>
+            <li>Documentación del servicio Apache en el sitio: descripción, comandos de administración y rutas de logs.</li>
+            <li>Colaboración en la preparación de capturas y ejemplos usados en la presentación del proyecto.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      Proyecto Integrador · Redes Linux · Equipo SecureMonitor (ISW · 7.º semestre)
+    </footer>
+  </section>
+</main>
