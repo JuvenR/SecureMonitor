@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Servicio Apache · SecureMonitor</title>
+  <style>
+    :root{--bg:#0f172a;--bg-card:#111827;--border:#1f2937;--text:#e5e7eb;--muted:#9ca3af}
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:24px;padding:24px}
+    .sidebar{background:var(--bg-card);border:1px solid var(--border);padding:16px;border-radius:10px}
+    .sidebar-label{font-weight:700;margin-bottom:8px}
+    .sidebar-group{display:flex;flex-direction:column;gap:6px}
+    .sidebar-link{color:var(--text);text-decoration:none;padding:6px;border-radius:6px}
+    .sidebar-link:hover{background:#0b1220}
+    .content{background:transparent}
+    .page-header{margin-bottom:16px}
+    .page-kicker{color:var(--muted);font-size:13px}
+    .page-title{font-size:28px;margin:6px 0}
+    .page-lead{color:var(--muted);max-width:70%}
+    .section{background:var(--bg-card);border:1px solid var(--border);padding:18px;border-radius:10px;margin-bottom:12px}
+    .section-header{margin-bottom:12px}
+    .section-tag{background:#0b1220;padding:4px 8px;border-radius:6px;font-size:12px;color:var(--muted)}
+    .section-title{margin:8px 0}
+    .section-subtitle{color:var(--muted)}
+    .code-label{margin:10px 0;font-weight:600;font-size:13px}
+    .code-block{background:#0b1220;padding:12px;border-radius:6px;overflow:auto;color:#d1d5db}
+    .text-muted{color:var(--muted)}
+    footer.page-footer{color:var(--muted);margin-top:12px}
+    ul{margin-top:6px}
+  </style>
+</head>
+<body>
+<main class="layout">
+  <!-- SIDEBAR APACHE -->
+  <aside class="sidebar">
+    <div class="sidebar-label">Apache · Índice</div>
+    <div class="sidebar-group">
+      <a href="#apache-intro" class="sidebar-link">Introducción</a>
+      <a href="#apache-inst" class="sidebar-link">Instalación y servicio</a>
+      <a href="#apache-config" class="sidebar-link">Configuración básica</a>
+      <a href="#apache-vhosts" class="sidebar-link">Virtual Hosts</a>
+      <a href="#apache-mods" class="sidebar-link">Módulos y seguridad</a>
+      <a href="#apache-logs" class="sidebar-link">Logs y monitoreo</a>
+      <a href="#apache-pruebas" class="sidebar-link">Pruebas</a>
+      <a href="#apache-notas" class="sidebar-link">Notas y aprendizajes</a>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO -->
+  <section class="content">
+    <header class="page-header" id="apache-intro">
+      <div class="page-kicker">Servicio HTTP · Apache2</div>
+      <h1 class="page-title">Servidor Apache en el entorno SecureMonitor</h1>
+      <p class="page-lead">En la máquina virtual con <strong>Ubuntu Server</strong> se instaló y configuró el servidor <strong>Apache2</strong> para servir contenido web, probar accesos legítimos y maliciosos (por ejemplo peticiones a rutas inexistentes) y generar logs que <strong>SecureMonitor</strong> pueda procesar.</p>
+    </header>
+
+    <section class="section" aria-labelledby="apache-intro-title">
+      <header class="section-header">
+        <span class="section-tag">Apache</span>
+        <h2 class="section-title" id="apache-intro-title">Rol del servicio Apache en el proyecto</h2>
+        <p class="section-subtitle">Apache funciona como servicio web monitoreado por SecureMonitor. Permite observar tráfico HTTP(S), errores 4xx/5xx y patrones anómalos (scans de directorios, intentos de explotación, etc.).</p>
+      </header>
+
+      <div class="section-body">
+        <p>El servidor Apache se utilizó para:</p>
+        <ul>
+          <li>Servir páginas web estáticas y dinámicas para el laboratorio.</li>
+          <li>Generar eventos de acceso y error que alimenten las reglas de detección de SecureMonitor.</li>
+          <li>Practicar configuración de virtual hosts, redirecciones y TLS.</li>
+        </ul>
+        <p class="text-muted">En entornos reales se debe complementar con WAF, TLS forzado y prácticas de hardening; sin embargo, para el laboratorio Apache permite generar señales de red útiles para el monitoreo.</p>
+      </div>
+    </section>
+
+    <section class="section" id="apache-inst" aria-labelledby="apache-inst-title">
+      <header class="section-header">
+        <span class="section-tag">Instalación</span>
+        <h2 class="section-title" id="apache-inst-title">Instalación y administración del servicio Apache2</h2>
+        <p class="section-subtitle">Comandos para instalar Apache y administrarlo con systemd.</p>
+      </header>
+
+      <div class="section-body">
+        <p>Instalación desde repositorios oficiales:</p>
+        <div class="code-label">Instalación</div>
+        <div class="code-block"><pre>sudo apt update
+sudo apt install apache2</pre></div>
+
+        <p>Control del servicio con systemd:</p>
+        <div class="code-label">Control del servicio</div>
+        <div class="code-block"><pre>sudo systemctl status apache2
+sudo systemctl start apache2
+sudo systemctl enable apache2
+sudo systemctl restart apache2</pre></div>
+
+        <p class="text-muted">Con <code>enable</code> se asegura que Apache arranque al iniciar la VM.</p>
+      </div>
+    </section>
+
+    <section class="section" id="apache-config" aria-labelledby="apache-config-title">
+      <header class="section-header">
+        <span class="section-tag">Configuración</span>
+        <h2 class="section-title" id="apache-config-title">Configuración básica de Apache</h2>
+        <p class="section-subtitle">Archivos principales y ajustes recomendados en <code>/etc/apache2</code>.</p>
+      </header>
+
+      <div class="section-body">
+        <p>Archivo principal de configuración: <code>/etc/apache2/apache2.conf</code>. Otros directorios clave:</p>
+        <ul>
+          <li><code>/etc/apache2/sites-available/</code> · Virtual hosts disponibles.</li>
+          <li><code>/etc/apache2/sites-enabled/</code> · Virtual hosts activos (symlinks).</li>
+          <li><code>/etc/apache2/mods-available/</code> y <code>/etc/apache2/mods-enabled/</code> · Módulos.</li>
+        </ul>
+
+        <div class="code-label">Fragmentos útiles</div>
+        <div class="code-block"><pre># Deshabilitar listados de directorios
+<Directory /var/www/>
+    Options -Indexes
+</Directory>
+
+# Forzar TimeOut y limitar tamaños si se desea
+Timeout 60
+LimitRequestBody 10485760</pre></div>
+
+        <p class="text-muted">Después de editar la configuración, verificar sintaxis y reiniciar:</p>
+        <div class="code-block"><pre>sudo apachectl configtest
+sudo systemctl restart apache2</pre></div>
+      </div>
+    </section>
+
+    <section class="section" id="apache-vhosts" aria-labelledby="apache-vhosts-title">
+      <header class="section-header">
+        <span class="section-tag">Virtual Hosts</span>
+        <h2 class="section-title" id="apache-vhosts-title">Configurar Virtual Hosts (sitios)</h2>
+        <p class="section-subtitle">Ejemplo de VirtualHost para un sitio simple y cómo activarlo.</p>
+      </header>
+
+      <div class="section-body">
+        <div class="code-label">Ejemplo: /etc/apache2/sites-available/mi-sitio.conf</div>
+        <div class="code-block"><pre><VirtualHost *:80>
+    ServerName mi-sitio.local
+    ServerAdmin admin@ejemplo.local
+    DocumentRoot /var/www/mi-sitio
+
+    ErrorLog ${APACHE_LOG_DIR}/mi-sitio-error.log
+    CustomLog ${APACHE_LOG_DIR}/mi-sitio-access.log combined
+</VirtualHost></pre></div>
+
+        <p>Crear el directorio y asignar permisos mínimos:</p>
+        <div class="code-block"><pre>sudo mkdir -p /var/www/mi-sitio
+sudo chown -R $USER:$USER /var/www/mi-sitio
+sudo chmod -R 755 /var/www/mi-sitio</pre></div>
+
+        <p>Habilitar el sitio y recargar Apache:</p>
+        <div class="code-block"><pre>sudo a2ensite mi-sitio.conf
+sudo systemctl reload apache2</pre></div>
+
+        <p class="text-muted">En laboratorio, puede usarse el archivo <code>/etc/hosts</code> del cliente para mapear <code>mi-sitio.local</code> a la IP de la VM.</p>
+      </div>
+    </section>
+
+    <section class="section" id="apache-mods" aria-labelledby="apache-mods-title">
+      <header class="section-header">
+        <span class="section-tag">Módulos</span>
+        <h2 class="section-title" id="apache-mods-title">Módulos, TLS y medidas de seguridad</h2>
+        <p class="section-subtitle">Habilitar módulos comunes y recomendaciones básicas de hardening.</p>
+      </header>
+
+      <div class="section-body">
+        <p>Habilitar módulos:</p>
+        <div class="code-block"><pre>sudo a2enmod rewrite
+sudo a2enmod headers
+sudo a2enmod ssl</pre></div>
+
+        <p>Para TLS en laboratorio utilice <code>certbot</code> si quiere certs reales (si la VM es accesible públicamente) o configure certificados auto-firmados:</p>
+        <div class="code-block"><pre>sudo apt install certbot python3-certbot-apache
+sudo certbot --apache</pre></div>
+
+        <p class="text-muted">Medidas de seguridad: deshabilitar módulos innecesarios, desactivar listados de directorios, usar permisos mínimos, y aplicar reglas de firewall.</p>
+      </div>
+    </section>
+
+    <section class="section" id="apache-logs" aria-labelledby="apache-logs-title">
+      <header class="section-header">
+        <span class="section-tag">Logs</span>
+        <h2 class="section-title" id="apache-logs-title">Ubicación de logs y cómo SecureMonitor puede leerlos</h2>
+        <p class="section-subtitle">Rutas de logs y ejemplos de líneas que generan eventos útiles para detección.</p>
+      </header>
+
+      <div class="section-body">
+        <p>Logs principales:</p>
+        <ul>
+          <li><code>/var/log/apache2/access.log</code> · Solicitudes exitosas e información del cliente.</li>
+          <li><code>/var/log/apache2/error.log</code> · Errores de servidor y aplicación.</li>
+        </ul>
+
+        <div class="code-label">Entrada de access.log (ejemplo)</div>
+        <div class="code-block"><pre>192.0.2.10 - - [30/Nov/2025:12:41:10 +0000] "GET /index.html HTTP/1.1" 200 1024 "-" "curl/7.68.0"</pre></div>
+
+        <p>SecureMonitor puede consumir estas líneas para contar intentos de 404, tasas de error 5xx, o detectar patrones (p.ej. requests automatizadas con user-agents sospechosos) y generar alertas.</p>
+      </div>
+    </section>
+
+    <section class="section" id="apache-pruebas" aria-labelledby="apache-pruebas-title">
+      <header class="section-header">
+        <span class="section-tag">Pruebas</span>
+        <h2 class="section-title" id="apache-pruebas-title">Pruebas funcionales y de fallo</h2>
+        <p class="section-subtitle">Comandos y ejemplos para generar tráfico y errores útiles para pruebas.</p>
+      </header>
+
+      <div class="section-body">
+        <div class="code-label">Probar desde la VM o desde otro host</div>
+        <div class="code-block"><pre># Probar que la página principal responde
+curl -I http://<IP_VM>/
+
+# Forzar 404
+curl -I http://<IP_VM>/archivo-no-existe.html
+
+# Probar cargas concurrentes (ejemplo simple)
+for i in {1..50}; do curl -s http://<IP_VM>/ > /dev/null & done</pre></div>
+
+        <p class="text-muted">Los ejemplos anteriores generan líneas en access.log/error.log que pueden alimentar reglas y estadísticas en SecureMonitor.</p>
+      </div>
+    </section>
+
+    <section class="section" id="apache-notas" aria-labelledby="apache-notas-title">
+      <header class="section-header">
+        <span class="section-tag">Reflexión</span>
+        <h2 class="section-title" id="apache-notas-title">Notas y aprendizajes sobre Apache</h2>
+        <p class="section-subtitle">Consideraciones finales al usar Apache en el laboratorio.</p>
+      </header>
+
+      <div class="section-body">
+        <ul>
+          <li>Apache es versátil y genera logs ricos para detección, pero requiere hardening para uso real.</li>
+          <li>Combine monitoreo de logs con límites a nivel de firewall (ufw) y herramientas como mod_security para mayor protección.</li>
+          <li>Documente las rutas de logs y las configuraciones cambiadas para facilitar auditorías y restauraciones.</li>
+        </ul>
+        <p class="text-muted">Este documento es una plantilla para integrar Apache en el proyecto SecureMonitor; adapta las rutas y parámetros a tu entorno específico.</p>
+      </div>
+    </section>
+
+    <footer class="page-footer">Proyecto Integrador · Redes Linux · Servicio Apache (apache2) · Equipo SecureMonitor</footer>
+  </section>
+</main>
+</body>
+</html>
