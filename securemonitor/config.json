@@ -1,0 +1,20 @@
+{
+  "services_to_watch": ["ssh", "ftp", "apache"],
+  "ssh_log_path": "/var/log/auth.log",
+  "apache_access_log_path": "/var/log/apache2/securemonitor_access.log",
+  "apache_error_log_path": "/var/log/apache2/error.log",
+  "ftp_log_path": "/var/log/auth.log",
+
+  "max_failures": 3,             
+  "ssh_max_failures": 5,         
+  "ftp_max_failures": 3,          
+  "apache_error_threshold": 10,  
+  "auto_unblock_minutes": 1,
+
+  "check_interval_seconds": 5,
+  "blocked_ips_file": "blocked_ips.txt",
+  "whitelist_file": "whitelist.txt",
+  "apache_block_on_threshold": false
+
+
+}

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>SecureMonitor · Simulación de ataques</title>
+
+  <style>
+    :root {
+      --bg: #020617;
+      --card-bg: #030712;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --tag-bg: #111827;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      max-width: 720px;
+      width: 100%;
+      margin: 40px auto;
+      padding: 28px 32px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      opacity: 0.9;
+    }
+
+    h1 {
+      margin-bottom: 4px;
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.92rem;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+
+    p {
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: #111827;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .status p + p {
+      margin-top: 6px;
+    }
+
+    b {
+      color: #f97316;
+    }
+
+    .section-title {
+      margin-top: 20px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+    }
+
+    .list {
+      margin-left: 16px;
+      margin-top: 4px;
+      font-size: 0.9rem;
+    }
+
+    .list li {
+      margin-bottom: 3px;
+    }
+
+
+    .code-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      margin-top: 10px;
+      margin-bottom: 2px;
+    }
+
+    .pill-ok {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .pill-ok-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+    }
+
+    .code-block {
+    /* lo que ya tienes */
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #020617;
+    border: 1px solid #111827;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre;
+
+    /* para Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.7) rgba(15, 23, 42, 0.9);
+    }
+
+   .code-block::-webkit-scrollbar {
+    height: 4px; /* grosor horizontal */
+    width: 4px;  /* por si algún día hay vertical */
+    }
+
+    html::-webkit-scrollbar{
+    width: 8px;
+    }   
+
+    html::-webkit-scrollbar-track,
+    .code-block::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 999px;
+    }
+
+    html::-webkit-scrollbar-thumb,
+    .code-block::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.7);
+    border-radius: 999px;
+    }
+
+    html::-webkit-scrollbar-thumb:hover,
+    .code-block::-webkit-scrollbar-thumb:hover {
+    background: rgba(226, 232, 240, 0.9);
+    }
+
+    
+
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="tag">internal admin only</span>
+    <h1>Simulación de ataques para SecureMonitor</h1>
+    <p class="subtitle">
+      Usa el endpoint interno <code>/api/simulate</code> para generar tráfico
+      malicioso controlado y ver cómo reacciona el dashboard en tiempo real.
+    </p>
+
+    <div class="status">
+      <p>
+        <span class="pill-ok">
+          <span class="pill-ok-dot"></span>
+          Endpoint listo para pruebas internas
+        </span>
+      </p>
+      <p style="margin-top: 10px;">
+        Este módulo no abre ningún servicio real, solo inyecta eventos
+        al daemon. 
+      </p>
+    </div>
+
+    <h2 class="section-title">1. Endpoint base</h2>
+    <p>
+      El endpoint acepta método <b>POST</b> o <b>GET</b> y recibe dos parámetros:
+    </p>
+    <ul class="list">
+      <li><code>kind</code>: <b>ssh</b> | <b>ftp</b> | <b>apache</b></li>
+      <li><code>n</code>: cantidad de eventos a simular (1–1000, por defecto 10)</li>
+    </ul>
+
+    <div class="code-label">Forma general</div>
+    <div class="code-block">
+/api/simulate?kind=ssh&amp;n=20
+/api/simulate?kind=ftp&amp;n=50
+/api/simulate?kind=apache&amp;n=15
+    </div>
+
+    <h2 class="section-title">2. Ejemplos con curl (desde tu terminal)</h2>
+
+    <p><b>SSH – múltiples intentos de login fallidos</b></p>
+    <div class="code-block">
+curl -X POST "https://securemonitor.juvenr.com/api/simulate?kind=ssh&amp;n=15"
+    </div>
+
+    <p><b>FTP – autenticaciones fallidas en vsftpd</b></p>
+    <div class="code-block">
+curl -X POST "https://securemonitor.juvenr.com/api/simulate?kind=ftp&amp;n=25"
+    </div>
+
+    <p><b>Apache – errores 4xx/5xx desde tu IP</b></p>
+    <div class="code-block">
+curl -X POST "https://securemonitor.juvenr.com/api/simulate?kind=apache&amp;n=12"
+    </div>
+
+    <h2 class="section-title">3. Qué pasa detrás</h2>
+    <ul class="list">
+      <li>SecureMonitor toma tu IP desde <code>X-Forwarded-For</code> / <code>RemoteAddr</code>.</li>
+      <li>Inyecta los eventos simulados en los contadores internos (SSH/FTP/Apache).</li>
+      <li>El <b>RunLoop</b> procesa esos eventos como si vinieran de los logs reales.</li>
+      <li>Se generan <b>alertas</b>, se actualizan <b>stats</b> y, si pasas el umbral, se puede <b>bloquear tu IP</b> vía UFW.</li>
+    </ul>
+  </div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# /etc/systemd/system/securemonitor.service
+[Unit]
+Description=Secure Monitor Daemon
+After=network.target
+
+[Service]
+ExecStart=/home/juveen/securemonitor/securemonitor
+WorkingDirectory=/home/juveen/securemonitor
+StandardOutput=journal
+StandardError=journal
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

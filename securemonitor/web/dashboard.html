@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecureMonitor Dashboard</title>
+  <link rel="stylesheet" href="styles.css?v=3" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-name">SecureMonitor</div>
+        <div class="brand-sub">Linux security daemon · SSH · FTP · Apache</div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="pill pill-ok" id="daemonPill">
+          Daemon activo
+        </div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="grid stats-grid">
+        <article class="card card-stat">
+          <div class="card-header">
+            <h2>SSH</h2>
+            <span class="chip chip-ssh">SSH</span>
+          </div>
+          <div class="stat-value" id="sshCount">0</div>
+          <div class="stat-label">Intentos de login fallidos</div>
+        </article>
+
+        <article class="card card-stat">
+          <div class="card-header">
+            <h2>FTP</h2>
+            <span class="chip chip-ftp">FTP</span>
+          </div>
+          <div class="stat-value" id="ftpCount">0</div>
+          <div class="stat-label">Intentos de login fallidos</div>
+        </article>
+
+        <article class="card card-stat">
+          <div class="card-header">
+            <h2>Apache</h2>
+            <span class="chip chip-apache">HTTP</span>
+          </div>
+          <div class="stat-value" id="apacheCount">0</div>
+          <div class="stat-label">Errores recientes (4xx / 5xx)</div>
+        </article>
+
+        <article class="card card-health">
+          <div class="card-header">
+            <h2>Estado del daemon</h2>
+          </div>
+          <div id="statusText" class="badge badge-ok">OK</div>
+          <p class="health-hint">
+            El daemon monitorea los servicios cada pocos segundos.
+          </p>
+        </article>
+      </section>
+
+
+               <!-- Alertas recientes -->
+      <section class="grid alerts-grid">
+        <article class="card">
+          <div class="card-header alerts-card-header">
+            <div class="alerts-title">
+              <h2>Alertas recientes</h2>
+              <span class="muted">Incidentes detectados por SecureMonitor</span>
+            </div>
+
+            <span id="alertsCount" class="pill pill-small">
+              0 alertas
+            </span>
+          </div>
+
+
+          <div class="alerts-table-wrapper">
+            <table class="alerts-table">
+              <thead>
+                <tr>
+                  <th>Hora</th>
+                  <th>Servicio</th>
+                  <th>IP</th>
+                  <th>País</th>
+                  <th>Severidad</th>
+                  <th>Mensaje</th>
+                </tr>
+              </thead>
+              <tbody id="alertsBody">
+              </tbody>
+            </table>
+
+            <p id="alertsEmptyMsg" class="alerts-empty-msg">
+              Sin alertas por el momento. Todo tranquilo 
+            </p>
+          </div>
+        </article>
+      </section>
+
+
+      <section class="grid bottom-grid">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-header-main">
+              <h2>IPs bloqueadas</h2>
+              <span class="muted">Acciones de firewall en tiempo real</span>
+            </div>
+          </div>
+
+          <ul id="blockedList" class="ip-list"></ul>
+          <p class="ip-empty-hint" id="blockedEmptyMsg">
+            No hay IPs bloqueadas actualmente.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card-header logs-card-header">
+            <div class="card-header-main">
+              <h2>Logs recientes</h2>
+              <span class="muted">Últimos eventos detectados por SecureMonitor</span>
+            </div>
+
+            <span id="lastAlertPill" class="pill pill-small">
+              Sin alertas recientes
+            </span>
+          </div>
+
+          <div id="logs" class="logs"></div>
+        </article>
+
+      </section>
+
+
+   
+    </main>
+  </div>
+</body>
+</html>
