@@ -198,5 +198,17 @@ The daemon serves both the API and the static files from `web/` on the configure
   "blocked": [ "1.2.3.4", "5.6.7.8" ]
 }
 ```
+<br><br>
+
+<div align="center">
+  <img
+    src="https://github.com/user-attachments/assets/996af39b-fec6-4f32-af3f-a6c1be5fe631"
+    alt="SecureMonitor dashboard screenshot"
+    width="900"
+  />
+  <br />
+  <sub><i>SecureMonitor dashboard · SSH/FTP/Apache stats, live alerts & blocked IPs.</i></sub>
+</div>
+
 
 
